@@ -2,6 +2,7 @@ package json.chao.com.wanandroid.ui.main.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +21,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.xuexiang.xupdate.XUpdate;
+import com.facebook.device.yearclass.YearClass;
 
 import java.util.ArrayList;
 
@@ -28,22 +29,24 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import json.chao.com.wanandroid.R;
 import json.chao.com.wanandroid.app.Constants;
+import json.chao.com.wanandroid.app.WanAndroidApp;
 import json.chao.com.wanandroid.base.activity.BaseActivity;
 import json.chao.com.wanandroid.base.fragment.BaseFragment;
 import json.chao.com.wanandroid.contract.main.MainContract;
 import json.chao.com.wanandroid.presenter.main.MainPresenter;
 import json.chao.com.wanandroid.ui.hierarchy.fragment.KnowledgeHierarchyFragment;
 import json.chao.com.wanandroid.ui.main.fragment.CollectFragment;
+import json.chao.com.wanandroid.ui.main.fragment.SearchDialogFragment;
 import json.chao.com.wanandroid.ui.main.fragment.SettingFragment;
 import json.chao.com.wanandroid.ui.main.fragment.UsageDialogFragment;
 import json.chao.com.wanandroid.ui.mainpager.fragment.MainPagerFragment;
 import json.chao.com.wanandroid.ui.navigation.fragment.NavigationFragment;
 import json.chao.com.wanandroid.ui.project.fragment.ProjectFragment;
-import json.chao.com.wanandroid.ui.main.fragment.SearchDialogFragment;
 import json.chao.com.wanandroid.ui.wx.fragment.WxArticleFragment;
 import json.chao.com.wanandroid.utils.BottomNavigationViewHelper;
 import json.chao.com.wanandroid.utils.CommonAlertDialog;
 import json.chao.com.wanandroid.utils.CommonUtils;
+import json.chao.com.wanandroid.utils.LogHelper;
 import json.chao.com.wanandroid.utils.StatusBarUtil;
 
 
@@ -82,7 +85,9 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainCon
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        LogHelper.d("start");
         CommonAlertDialog.newInstance().cancelDialog(true);
+        LogHelper.d("end");
     }
 
     @Override
@@ -103,9 +108,27 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainCon
 
     @Override
     protected void initEventAndData() {
-//        XUpdate.newBuild(mActivity)
-//                .updateUrl(Constants.UPDATE_URL)
-//                .update();
+        // 以下代码是为了演示Msg导致的主线程卡顿
+//        new Handler().post(() -> {
+//            LogHelper.i("Msg 执行");
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        });
+
+        int year = YearClass.get(WanAndroidApp.getInstance());
+        if (year >= YearClass.CLASS_2016) {
+            // 配置较高的手机可以 开启复杂的动画 或 "重功能"。
+            // 通常来说，从 2016年开始 的手机配置就比较好了，
+            // 我们统一按照这个模板使用即可。
+
+        } else {
+            // 低端机用户可以 关闭复杂的动画 或 "重功能"、在系统资源不够时我们应该主动去做降级处理。
+
+        }
+
     }
 
     @Override
@@ -291,6 +314,7 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainCon
                 case R.id.tab_project:
                     loadPager(getString(R.string.project), 4,
                             mProjectFragment, Constants.TYPE_PROJECT);
+//                    startActivity(new Intent(this, VueActivity.class));
                     break;
                 default:
                     break;
@@ -450,6 +474,8 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainCon
                 v -> mPresenter.logout(),
                 v -> CommonAlertDialog.newInstance().cancelDialog(true));
     }
+
+
 
 
 
